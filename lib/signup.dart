@@ -53,7 +53,14 @@ class _SignUpPageState extends State<SignUpPage> {
             email: _emailController.text.trim(),
             password: _passwordController.text.trim(),
           );
+
       if (userCredential.user != null) {
+        await userCredential.user!.updateDisplayName(
+          _usernameController.text.trim(),
+        );
+
+        await userCredential.user!.reload();
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
@@ -93,6 +100,10 @@ class _SignUpPageState extends State<SignUpPage> {
         message = 'Invalid email address';
       } else if (e.code == 'weak-password') {
         message = 'Password must be at least 6 characters';
+      } else if (e.code == 'display-name-too-long') {
+        message = 'Username is too long';
+      } else if (e.code == 'invalid-display-name') {
+        message = 'Invalid username format';
       }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -118,7 +129,26 @@ class _SignUpPageState extends State<SignUpPage> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('An error occurred. Please try again.')),
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error_outline, color: Colors.white),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'An error occurred: ${e.toString()}',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          margin: const EdgeInsets.all(20),
+        ),
       );
     } finally {
       setState(() => _isLoading = false);

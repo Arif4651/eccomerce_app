@@ -5,6 +5,8 @@ import 'package:ecommerce_app/whishlist.dart'; // Import WishlistPage
 import 'package:ecommerce_app/model/model.dart'; // Import ProductElement
 import 'package:provider/provider.dart'; // Import provider
 import 'package:ecommerce_app/cart_model.dart'; // Import CartModel
+import 'package:ecommerce_app/checkout.dart'; // Import Checkout
+import 'package:ecommerce_app/widgets/cached_image.dart'; // Import CachedImage
 
 class CartListPage extends StatefulWidget {
   // Removed cartItems parameter as it will be accessed via Provider
@@ -94,13 +96,12 @@ class _CartlistState extends State<CartListPage> {
                                 SizedBox(
                                   width: 80,
                                   height: 80,
-                                  child: Image.network(
-                                    product.image,
+                                  child: CachedImage(
+                                    imageUrl: product.image,
                                     fit: BoxFit.cover,
-                                    errorBuilder:
-                                        (context, error, stackTrace) => Icon(
-                                          Icons.broken_image,
-                                        ), // Handle broken images
+                                    width: 80,
+                                    height: 80,
+                                    // errorBuilder is handled within CachedImage
                                   ),
                                 ),
                                 const SizedBox(width: 8.0),
@@ -205,25 +206,22 @@ class _CartlistState extends State<CartListPage> {
                         const SizedBox(height: 16.0),
                         ElevatedButton(
                           onPressed: () {
-                            // TODO: Implement payment logic
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Proceeding to payment...'),
-                                duration: Duration(seconds: 1),
+                            // Navigate to checkout page
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const Checkout(),
                               ),
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFFE5315D), // Button color
+                            backgroundColor: Color(0xFFE5315D),
                             padding: EdgeInsets.symmetric(
                               horizontal: 50,
                               vertical: 15,
                             ),
                             textStyle: TextStyle(fontSize: 18),
-                            minimumSize: Size(
-                              double.infinity,
-                              50,
-                            ), // Make button full width
+                            minimumSize: Size(double.infinity, 50),
                           ),
                           child: const Text(
                             'Proceed to Payment',

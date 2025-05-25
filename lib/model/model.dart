@@ -22,7 +22,9 @@ class Product {
   factory Product.fromJson(Map<String, dynamic> json) => Product(
     status: json["status"],
     message: json["message"],
-    products: List<ProductElement>.from(json["products"].map((x) => ProductElement.fromJson(x))),
+    products: List<ProductElement>.from(
+      json["products"].map((x) => ProductElement.fromJson(x)),
+    ),
   );
 
   Map<String, dynamic> toJson() => {
@@ -62,18 +64,19 @@ class ProductElement {
   });
 
   factory ProductElement.fromJson(Map<String, dynamic> json) => ProductElement(
-    id: json["id"],
-    title: json["title"],
-    image: json["image"],
-    price: json["price"],
-    description: json["description"],
-    brand: json["brand"],
-    model: json["model"],
-    color: json["color"],
-    category: categoryValues.map[json["category"]]!,
-    discount: json["discount"],
-    popular: json["popular"],
-    onSale: json["onSale"],
+    id: json["id"] as int? ?? 0,
+    title: json["title"] as String? ?? '',
+    image: json["image"] as String? ?? '',
+    price: json["price"] as int? ?? 0,
+    description: json["description"] as String? ?? '',
+    brand: json["brand"] as String? ?? '',
+    model: json["model"] as String? ?? '',
+    color: json["color"] as String?,
+    category:
+        categoryValues.map[json["category"] as String? ?? ''] ?? Category.AUDIO,
+    discount: json["discount"] as int?,
+    popular: json["popular"] as bool?,
+    onSale: json["onSale"] as bool?,
   );
 
   Map<String, dynamic> toJson() => {
@@ -92,18 +95,13 @@ class ProductElement {
   };
 }
 
-enum Category {
-  AUDIO,
-  GAMING,
-  MOBILE,
-  TV
-}
+enum Category { AUDIO, GAMING, MOBILE, TV }
 
 final categoryValues = EnumValues({
   "audio": Category.AUDIO,
   "gaming": Category.GAMING,
   "mobile": Category.MOBILE,
-  "tv": Category.TV
+  "tv": Category.TV,
 });
 
 class EnumValues<T> {

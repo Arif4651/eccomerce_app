@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ecommerce_app/signup.dart';
 import 'dashboard.dart';
+import 'package:provider/provider.dart';
+import 'package:ecommerce_app/cart_model.dart';
 
 Route createRoute(Widget page) {
   return PageRouteBuilder(
@@ -50,6 +52,12 @@ class _LoginPageState extends State<LoginPage> {
             password: _passwordController.text.trim(),
           );
       if (userCredential.user != null) {
+        // Initialize user data after successful login
+        await Provider.of<CartModel>(
+          context,
+          listen: false,
+        ).initializeUserData();
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(

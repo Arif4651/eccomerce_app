@@ -7,6 +7,7 @@ import 'package:ecommerce_app/account.dart'; // Import account.dart
 import 'package:ecommerce_app/product_detail_page.dart'; // Import product_detail.dart
 import 'package:provider/provider.dart'; // Import provider
 import 'package:ecommerce_app/cart_model.dart'; // Import CartModel
+import 'package:ecommerce_app/widgets/cached_image.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -354,14 +355,10 @@ class _DashboardState extends State<Dashboard> {
                                   ],
                                 ),
                                 Expanded(
-                                  child: Image.network(
-                                    product.image,
+                                  child: CachedImage(
+                                    imageUrl: product.image,
                                     fit: BoxFit.cover,
                                     width: double.infinity,
-                                    errorBuilder:
-                                        (context, error, stackTrace) => Icon(
-                                          Icons.broken_image,
-                                        ), // Handle broken images
                                   ),
                                 ),
                                 Padding(

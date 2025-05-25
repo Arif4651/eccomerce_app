@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ecommerce_app/model/model.dart'; // Import ProductElement
 import 'package:provider/provider.dart'; // Import provider
 import 'package:ecommerce_app/cart_model.dart'; // Import CartModel
+import 'package:ecommerce_app/widgets/cached_image.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final ProductElement product;
@@ -19,22 +20,20 @@ class ProductDetailPage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Product Image
-            Image.network(
-              product.image,
+            CachedImage(
+              imageUrl: product.image,
               fit: BoxFit.cover,
               width: double.infinity,
-              height: 300, // Adjust height as needed
-              errorBuilder:
-                  (context, error, stackTrace) => Container(
-                    // Handle broken images
-                    height: 300,
-                    color: Colors.grey[300],
-                    child: Icon(
-                      Icons.broken_image,
-                      size: 80,
-                      color: Colors.grey[600],
-                    ),
-                  ),
+              height: 300,
+              errorWidget: Container(
+                height: 300,
+                color: Colors.grey[300],
+                child: Icon(
+                  Icons.broken_image,
+                  size: 80,
+                  color: Colors.grey[600],
+                ),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),

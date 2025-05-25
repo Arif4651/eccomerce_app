@@ -5,6 +5,7 @@ import 'package:ecommerce_app/account.dart'; // Import AccountPage
 import 'package:ecommerce_app/model/model.dart'; // Import ProductElement
 import 'package:provider/provider.dart'; // Import provider
 import 'package:ecommerce_app/cart_model.dart'; // Import CartModel
+import 'package:ecommerce_app/widgets/cached_image.dart';
 
 class WishlistPage extends StatefulWidget {
   const WishlistPage({super.key});
@@ -75,13 +76,11 @@ class _WishlistPageState extends State<WishlistPage> {
                           SizedBox(
                             width: 80,
                             height: 80,
-                            child: Image.network(
-                              product.image,
+                            child: CachedImage(
+                              imageUrl: product.image,
                               fit: BoxFit.cover,
-                              errorBuilder:
-                                  (context, error, stackTrace) => Icon(
-                                    Icons.broken_image,
-                                  ), // Handle broken images
+                              width: 80,
+                              height: 80,
                             ),
                           ),
                           const SizedBox(width: 8.0),
@@ -113,6 +112,52 @@ class _WishlistPageState extends State<WishlistPage> {
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.green[700],
+                                  ),
+                                ),
+                                const SizedBox(height: 8.0),
+                                // Add to Cart Button
+                                ElevatedButton(
+                                  onPressed: () {
+                                    // Add to cart
+                                    cart.addItemWithQuantity(product);
+                                    // Show success message
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Added ${product.title} to cart!',
+                                        ),
+                                        duration: Duration(seconds: 1),
+                                        backgroundColor: Color(0xFFE5315D),
+                                        behavior: SnackBarBehavior.floating,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            10.0,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                    // Navigate to cart page
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => CartListPage(),
+                                      ),
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(0xFFE5315D),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    minimumSize: Size(100, 36),
+                                  ),
+                                  child: Text(
+                                    'Add to Cart',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ),
                               ],
