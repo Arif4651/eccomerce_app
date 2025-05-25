@@ -21,6 +21,7 @@ dependencies:
   image_picker: ^1.1.2
   firebase_storage: ^12.4.6
 
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -31,6 +32,13 @@ dev_dependencies:
   
   
   flutter_lints: ^5.0.0
+  flutter_launcher_icons: ^0.14.3
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "asset/image/logo.png"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "asset/image/play_store_512.png"
 
 
 
