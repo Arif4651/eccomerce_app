@@ -274,40 +274,17 @@ class _DashboardState extends State<Dashboard> {
                         final isWishlisted = cart.isWishlistItem(product);
                         return InkWell(
                           onTap: () async {
-                            // Made onTap async
-                            // Navigate to product detail page and wait for result
-                            final result = await Navigator.push(
+                            // Navigate to product detail page
+                            await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder:
-                                    (context) => ProductDetailPage(
-                                      product: product,
-                                    ), // Pass the product object
+                                    (context) =>
+                                        ProductDetailPage(product: product),
                               ),
                             );
-
-                            // If a product is returned (Add to Cart was clicked)
-                            if (result != null && result is ProductElement) {
-                              // Add the product to the cart using CartModel
-                              Provider.of<CartModel>(
-                                context,
-                                listen: false,
-                              ).addItemWithQuantity(result);
-                              // Optional: Show a confirmation Snackbar
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Added ${result.title} to cart!',
-                                  ),
-                                  duration: Duration(seconds: 2),
-                                  backgroundColor: Color(0xFFE5315D),
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                  ),
-                                ),
-                              );
-                            }
+                            // No need to handle the result as the product detail page
+                            // already handles adding to cart
                           },
                           child: Card(
                             elevation: 2.0,
