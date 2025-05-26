@@ -8,6 +8,7 @@ import 'package:ecommerce_app/product_detail_page.dart'; // Import product_detai
 import 'package:provider/provider.dart'; // Import provider
 import 'package:ecommerce_app/cart_model.dart'; // Import CartModel
 import 'package:ecommerce_app/widgets/cached_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -25,6 +26,8 @@ class _DashboardState extends State<Dashboard> {
 
   // TextEditingController for the search bar
   final TextEditingController _searchController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  String _userName = 'User'; // Default name
 
   @override
   void initState() {
@@ -32,6 +35,7 @@ class _DashboardState extends State<Dashboard> {
     getData();
     // Add listener to search controller
     _searchController.addListener(_onSearchChanged);
+    _updateUserName();
   }
 
   @override
@@ -46,6 +50,16 @@ class _DashboardState extends State<Dashboard> {
     setState(() {
       _searchQuery = _searchController.text;
     });
+  }
+
+  void _updateUserName() {
+    final user = _auth.currentUser;
+    if (user != null) {
+      setState(() {
+        // Use display name if available, otherwise use email username
+        _userName = user.displayName ?? (user.email?.split('@')[0] ?? 'User');
+      });
+    }
   }
 
   getData() async {
@@ -127,12 +141,19 @@ class _DashboardState extends State<Dashboard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Welcome Message
-              const Padding(
-                padding: EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
+              // Welcome Message with User's Name
+              Padding(
+                padding: const EdgeInsets.only(
+                  left: 16.0,
+                  right: 16.0,
+                  top: 16.0,
+                ),
                 child: Text(
-                  'Welcome, User',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  'Welcome, $_userName',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               // Search Bar
