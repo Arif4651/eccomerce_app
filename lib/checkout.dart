@@ -7,6 +7,8 @@ import 'package:provider/provider.dart';
 import 'package:ecommerce_app/cart_model.dart';
 import 'package:ecommerce_app/services/user_data_service.dart';
 import 'package:ecommerce_app/account.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:ecommerce_app/homepage.dart';
 
 class Checkout extends StatefulWidget {
   const Checkout({super.key});
@@ -18,6 +20,57 @@ class Checkout extends StatefulWidget {
 class _CheckoutState extends State<Checkout> {
   bool _isProcessing = false;
   final UserDataService _userDataService = UserDataService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  Future<void> _checkAuthAndProcessPayment(BuildContext context) async {
+    // Check if user is logged in
+    if (_auth.currentUser == null) {
+      // Show dialog to prompt user to sign up/login
+      if (mounted) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Sign In Required'),
+              content: const Text(
+                'Please sign in or create an account to proceed with the payment.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close dialog
+                  },
+                  child: const Text('Cancel'),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close dialog
+                    // Navigate to homepage (which has sign in/sign up options)
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(builder: (context) => const HomePage()),
+                      (route) => false,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFE5315D),
+                  ),
+                  child: const Text(
+                    'Sign In / Sign Up',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      }
+      return;
+    }
+
+    // If user is logged in, proceed with payment
+    await _processPayment(context);
+  }
 
   Future<void> _processPayment(BuildContext context) async {
     setState(() => _isProcessing = true);
@@ -219,7 +272,9 @@ class _CheckoutState extends State<Checkout> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed:
-                    _isProcessing ? null : () => _processPayment(context),
+                    _isProcessing
+                        ? null
+                        : () => _checkAuthAndProcessPayment(context),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFE5315D),
                   padding: const EdgeInsets.symmetric(vertical: 16),

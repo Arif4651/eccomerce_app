@@ -274,6 +274,7 @@ class _AccountPageState extends State<AccountPage> {
   Widget build(BuildContext context) {
     final cartModel = Provider.of<CartModel>(context);
     final cartItemsCount = cartModel.itemQuantitiesMap.length;
+    final isLoggedIn = _auth.currentUser != null;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Account')),
@@ -312,102 +313,160 @@ class _AccountPageState extends State<AccountPage> {
                           ),
                           child: ClipOval(
                             child:
-                                _profileImageUrl != null
-                                    ? Image.file(
-                                      File(_profileImageUrl!),
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (
-                                        context,
-                                        error,
-                                        stackTrace,
-                                      ) {
-                                        print(
-                                          'Error loading profile image: $error',
-                                        );
-                                        return const Icon(
-                                          Icons.person,
-                                          size: 60,
-                                        );
-                                      },
-                                    )
-                                    : const Icon(Icons.person, size: 60),
+                                isLoggedIn
+                                    ? (_profileImageUrl != null
+                                        ? Image.file(
+                                          File(_profileImageUrl!),
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (
+                                            context,
+                                            error,
+                                            stackTrace,
+                                          ) {
+                                            print(
+                                              'Error loading profile image: $error',
+                                            );
+                                            return const Icon(
+                                              Icons.person,
+                                              size: 60,
+                                            );
+                                          },
+                                        )
+                                        : const Icon(Icons.person, size: 60))
+                                    : const Icon(
+                                      Icons.person_outline,
+                                      size: 60,
+                                    ),
                           ),
                         ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFE5315D),
-                              shape: BoxShape.circle,
-                              border: Border.all(color: Colors.white, width: 2),
-                            ),
-                            child: IconButton(
-                              icon:
-                                  _isLoadingImage
-                                      ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
+                        if (isLoggedIn)
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE5315D),
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2,
+                                ),
+                              ),
+                              child: IconButton(
+                                icon:
+                                    _isLoadingImage
+                                        ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                        : const Icon(
+                                          Icons.camera_alt,
                                           color: Colors.white,
-                                          strokeWidth: 2,
                                         ),
-                                      )
-                                      : const Icon(
-                                        Icons.camera_alt,
-                                        color: Colors.white,
-                                      ),
-                              onPressed:
-                                  _isLoadingImage ? null : _pickAndSaveImage,
+                                onPressed:
+                                    _isLoadingImage ? null : _pickAndSaveImage,
+                              ),
                             ),
                           ),
-                        ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 24),
                   // Profile Information Section
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 8.0),
-                    child: Text(
-                      'Profile Information',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                  if (isLoggedIn) ...[
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 8.0),
+                      child: Text(
+                        'Profile Information',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  Card(
-                    elevation: 2.0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildProfileInfoRow(
-                            'Email:',
-                            _user?.email ?? 'Not signed in',
-                          ),
-                          const SizedBox(height: 8.0),
-                          _buildProfileInfoRow(
-                            'Username:',
-                            _user?.displayName ?? 'Not set',
-                          ),
-                          const SizedBox(height: 8.0),
-                          _buildProfileInfoRow(
-                            'Account Created:',
-                            _user?.metadata.creationTime?.toString().split(
-                                  ' ',
-                                )[0] ??
-                                'Unknown',
-                          ),
-                        ],
+                    Card(
+                      elevation: 2.0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildProfileInfoRow(
+                              'Email:',
+                              _user?.email ?? 'Not signed in',
+                            ),
+                            const SizedBox(height: 8.0),
+                            _buildProfileInfoRow(
+                              'Username:',
+                              _user?.displayName ?? 'Not set',
+                            ),
+                            const SizedBox(height: 8.0),
+                            _buildProfileInfoRow(
+                              'Account Created:',
+                              _user?.metadata.creationTime?.toString().split(
+                                    ' ',
+                                  )[0] ??
+                                  'Unknown',
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
+                  ] else ...[
+                    const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16.0),
+                      child: Text(
+                        'Sign in to access your account',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFFE5315D),
+                        ),
+                      ),
+                    ),
+                    const Text(
+                      'Create an account to track your orders, save your preferences, and more.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const HomePage(),
+                            ),
+                            (route) => false,
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFE5315D),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: const Text(
+                          'Sign Up / Sign In',
+                          style: TextStyle(
+                            fontSize: 18,
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -428,7 +487,7 @@ class _AccountPageState extends State<AccountPage> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      if (!_isLoadingOrders)
+                      if (isLoggedIn && !_isLoadingOrders)
                         IconButton(
                           icon: const Icon(Icons.refresh),
                           onPressed: _loadOrderHistory,
@@ -438,166 +497,202 @@ class _AccountPageState extends State<AccountPage> {
                   ),
                   const SizedBox(height: 8),
                   // Order History List
-                  _isLoadingOrders
-                      ? const Center(child: CircularProgressIndicator())
-                      : _orderHistory.isEmpty
-                      ? Container(
-                        padding: const EdgeInsets.symmetric(vertical: 32.0),
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.shopping_bag_outlined,
-                                size: 64,
-                                color: Colors.grey[400],
-                              ),
-                              const SizedBox(height: 16),
-                              Text(
-                                'No orders yet',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Your order history will appear here',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[500],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                      : ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _orderHistory.length,
-                        itemBuilder: (context, index) {
-                          final order = _orderHistory[index];
-                          final productId = order['id'] ?? order['productId'];
-
-                          return Card(
-                            elevation: 2.0,
-                            margin: const EdgeInsets.only(bottom: 12.0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12.0),
+                  if (!isLoggedIn)
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 32.0),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.lock_outline,
+                              size: 64,
+                              color: Colors.grey[400],
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12.0),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Product Image
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    child: SizedBox(
-                                      width: 80,
-                                      height: 80,
-                                      child: CachedImage(
-                                        imageUrl:
-                                            'asset/image/${productId}.jpg',
-                                        fit: BoxFit.cover,
-                                        errorWidget: Container(
-                                          color: Colors.grey[200],
-                                          child: Icon(
-                                            Icons.image_not_supported,
-                                            color: Colors.grey[400],
-                                          ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Sign in to view your order history',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Your order history will be available after signing in',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else if (_isLoadingOrders)
+                    const Center(child: CircularProgressIndicator())
+                  else if (_orderHistory.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 32.0),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.shopping_bag_outlined,
+                              size: 64,
+                              color: Colors.grey[400],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'No orders yet',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[600],
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Your order history will appear here',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    ListView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: _orderHistory.length,
+                      itemBuilder: (context, index) {
+                        final order = _orderHistory[index];
+                        final productId = order['id'] ?? order['productId'];
+
+                        return Card(
+                          elevation: 2.0,
+                          margin: const EdgeInsets.only(bottom: 12.0),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Product Image
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8.0),
+                                  child: SizedBox(
+                                    width: 80,
+                                    height: 80,
+                                    child: CachedImage(
+                                      imageUrl: 'asset/image/${productId}.jpg',
+                                      fit: BoxFit.cover,
+                                      errorWidget: Container(
+                                        color: Colors.grey[200],
+                                        child: Icon(
+                                          Icons.image_not_supported,
+                                          color: Colors.grey[400],
                                         ),
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(width: 12.0),
-                                  // Order Details
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          order['productName'] ??
-                                              'Unknown Product',
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w500,
-                                          ),
+                                ),
+                                const SizedBox(width: 12.0),
+                                // Order Details
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        order['productName'] ??
+                                            'Unknown Product',
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w500,
                                         ),
-                                        const SizedBox(height: 4.0),
-                                        Text(
-                                          'Quantity: ${order['quantity']}',
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 14,
-                                          ),
+                                      ),
+                                      const SizedBox(height: 4.0),
+                                      Text(
+                                        'Quantity: ${order['quantity']}',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 14,
                                         ),
-                                        const SizedBox(height: 4.0),
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              '৳${(order['total'] ?? 0.0).toStringAsFixed(2)}',
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Color(0xFFE5315D),
-                                              ),
+                                      ),
+                                      const SizedBox(height: 4.0),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            '৳${(order['total'] ?? 0.0).toStringAsFixed(2)}',
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: Color(0xFFE5315D),
                                             ),
-                                            Text(
-                                              '৳${(order['price'] ?? 0.0).toStringAsFixed(2)} each',
-                                              style: TextStyle(
-                                                color: Colors.grey[600],
-                                                fontSize: 14,
-                                              ),
+                                          ),
+                                          Text(
+                                            '৳${(order['price'] ?? 0.0).toStringAsFixed(2)} each',
+                                            style: TextStyle(
+                                              color: Colors.grey[600],
+                                              fontSize: 14,
                                             ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                      ),
+                          ),
+                        );
+                      },
+                    ),
                 ],
               ),
             ),
-            // Logout Button
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              margin: const EdgeInsets.only(bottom: 16.0),
-              child: SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoggingOut ? null : _handleLogout,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFE5315D),
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+            // Logout Button (only show when logged in)
+            if (isLoggedIn)
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                margin: const EdgeInsets.only(bottom: 16.0),
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isLoggingOut ? null : _handleLogout,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFE5315D),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
                     ),
-                  ),
-                  child:
-                      _isLoggingOut
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                            'Log Out',
-                            style: TextStyle(
-                              fontSize: 18,
+                    child:
+                        _isLoggingOut
+                            ? const CircularProgressIndicator(
                               color: Colors.white,
-                              fontWeight: FontWeight.w600,
+                            )
+                            : const Text(
+                              'Log Out',
+                              style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          ),
+                  ),
                 ),
               ),
-            ),
           ],
         ),
       ),
