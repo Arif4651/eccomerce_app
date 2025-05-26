@@ -240,6 +240,11 @@ class _AccountPageState extends State<AccountPage> {
                         itemCount: _orderHistory.length,
                         itemBuilder: (context, index) {
                           final order = _orderHistory[index];
+                          // Get the product ID from the order data
+                          final productId = order['id'] ?? order['productId'];
+                          print('Order data: $order'); // Debug log
+                          print('Product ID: $productId'); // Debug log
+
                           return Card(
                             elevation: 2.0,
                             margin: const EdgeInsets.symmetric(vertical: 4.0),
@@ -255,8 +260,16 @@ class _AccountPageState extends State<AccountPage> {
                                       width: 80,
                                       height: 80,
                                       child: CachedImage(
-                                        imageUrl: order['imageUrl'] ?? '',
+                                        imageUrl:
+                                            'asset/image/${productId}.jpg',
                                         fit: BoxFit.cover,
+                                        errorWidget: Container(
+                                          color: Colors.grey[200],
+                                          child: Icon(
+                                            Icons.image_not_supported,
+                                            color: Colors.grey[400],
+                                          ),
+                                        ),
                                       ),
                                     ),
                                   ),

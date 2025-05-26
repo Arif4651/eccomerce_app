@@ -356,7 +356,7 @@ class _DashboardState extends State<Dashboard> {
                                 ),
                                 Expanded(
                                   child: CachedImage(
-                                    imageUrl: product.image,
+                                    imageUrl: product.localImagePath,
                                     fit: BoxFit.cover,
                                     width: double.infinity,
                                   ),

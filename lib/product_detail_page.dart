@@ -21,7 +21,7 @@ class ProductDetailPage extends StatelessWidget {
           children: [
             // Product Image
             CachedImage(
-              imageUrl: product.image,
+              imageUrl: product.localImagePath,
               fit: BoxFit.cover,
               width: double.infinity,
               height: 300,

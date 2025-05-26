@@ -97,7 +97,7 @@ class _CartlistState extends State<CartListPage> {
                                   width: 80,
                                   height: 80,
                                   child: CachedImage(
-                                    imageUrl: product.image,
+                                    imageUrl: product.localImagePath,
                                     fit: BoxFit.cover,
                                     width: 80,
                                     height: 80,

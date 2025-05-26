@@ -48,6 +48,8 @@ class ProductElement {
   bool? popular;
   bool? onSale;
 
+  String get localImagePath => 'asset/image/${id.toString()}.jpg';
+
   ProductElement({
     required this.id,
     required this.title,

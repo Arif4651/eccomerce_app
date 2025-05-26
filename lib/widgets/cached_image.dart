@@ -21,7 +21,21 @@ class CachedImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Only set memCacheWidth and memCacheHeight if the dimensions are finite
+    // Check if the image is a local asset
+    if (imageUrl.startsWith('asset/')) {
+      return Image.asset(
+        imageUrl,
+        width: width,
+        height: height,
+        fit: fit,
+        errorBuilder:
+            (context, error, stackTrace) =>
+                errorWidget ??
+                const Icon(Icons.broken_image, color: Colors.grey),
+      );
+    }
+
+    // For network images, use CachedNetworkImage
     int? memCacheWidth;
     int? memCacheHeight;
 

@@ -54,11 +54,15 @@ class _CheckoutState extends State<Checkout> {
                   final product = entry.key;
                   final quantity = entry.value;
                   return {
+                    'id': product.id, // Store the product ID
                     'productName': product.title,
                     'price': product.price,
                     'quantity': quantity,
                     'total': product.price * quantity,
-                    'imageUrl': product.image, // Optional: include image URL
+                    'model':
+                        product.model, // Add model for better identification
+                    'brand':
+                        product.brand, // Add brand for better identification
                   };
                 }).toList();
 
