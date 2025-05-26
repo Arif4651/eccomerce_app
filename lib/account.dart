@@ -8,6 +8,11 @@ import 'package:provider/provider.dart';
 import 'package:ecommerce_app/cart_model.dart';
 import 'package:ecommerce_app/services/user_data_service.dart'; // Import UserDataService
 import 'package:ecommerce_app/widgets/cached_image.dart'; // Import CachedImage widget
+import 'package:image_picker/image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:io';
+import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 
 class AccountPage extends StatefulWidget {
   const AccountPage({super.key});
@@ -19,17 +24,21 @@ class AccountPage extends StatefulWidget {
 class _AccountPageState extends State<AccountPage> {
   int _selectedIndex = 3; // Set initial index for Account page
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   User? _user;
   bool _isLoggingOut = false;
   final UserDataService _userDataService = UserDataService();
   List<Map<String, dynamic>> _orderHistory = [];
   bool _isLoadingOrders = true;
+  String? _profileImagePath;
+  bool _isLoadingImage = false;
 
   @override
   void initState() {
     super.initState();
     _user = _auth.currentUser;
     _loadOrderHistory();
+    _loadProfileImage();
   }
 
   Future<void> _loadOrderHistory() async {
@@ -49,6 +58,73 @@ class _AccountPageState extends State<AccountPage> {
       if (mounted) {
         setState(() => _isLoadingOrders = false);
       }
+    }
+  }
+
+  Future<void> _loadProfileImage() async {
+    if (_user == null) return;
+
+    try {
+      final doc = await _firestore.collection('users').doc(_user!.uid).get();
+      if (doc.exists && doc.data()?.containsKey('profileImagePath') == true) {
+        setState(() {
+          _profileImagePath = doc.data()!['profileImagePath'];
+        });
+      }
+    } catch (e) {
+      print('Error loading profile image: $e');
+    }
+  }
+
+  Future<void> _pickAndSaveImage() async {
+    if (_user == null) return;
+
+    setState(() => _isLoadingImage = true);
+
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 500,
+        maxHeight: 500,
+        imageQuality: 85,
+      );
+
+      if (image != null) {
+        // Get the app's documents directory
+        final appDir = await getApplicationDocumentsDirectory();
+        final fileName = 'profile_${_user!.uid}${path.extension(image.path)}';
+        final savedImage = File('${appDir.path}/$fileName');
+
+        // Copy the picked image to the app's directory
+        await File(image.path).copy(savedImage.path);
+
+        // Update Firestore with the new image path
+        await _firestore.collection('users').doc(_user!.uid).set({
+          'profileImagePath': savedImage.path,
+          'lastUpdated': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+
+        setState(() {
+          _profileImagePath = savedImage.path;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profile image updated successfully!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error updating profile image: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      setState(() => _isLoadingImage = false);
     }
   }
 
@@ -168,6 +244,65 @@ class _AccountPageState extends State<AccountPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Profile Image Section
+            Center(
+              child: Stack(
+                children: [
+                  Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color(0xFFE5315D),
+                        width: 2,
+                      ),
+                    ),
+                    child: ClipOval(
+                      child:
+                          _profileImagePath != null
+                              ? Image.file(
+                                File(_profileImagePath!),
+                                fit: BoxFit.cover,
+                                errorBuilder:
+                                    (context, error, stackTrace) =>
+                                        const Icon(Icons.person, size: 60),
+                              )
+                              : const Icon(Icons.person, size: 60),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFE5315D),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: IconButton(
+                        icon:
+                            _isLoadingImage
+                                ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                                : const Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.white,
+                                ),
+                        onPressed: _isLoadingImage ? null : _pickAndSaveImage,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
             // Profile Information Section
             Padding(
               padding: const EdgeInsets.only(bottom: 8.0),
