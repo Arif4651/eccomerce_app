@@ -34,23 +34,7 @@ class Myapp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (snapshot.hasData) {
-            // User is logged in, initialize their data
-            Provider.of<CartModel>(context, listen: false).initializeUserData();
-            return const HomePage();
-          }
-
-          // User is not logged in
-          return const Dashboard();
-        },
-      ),
+      home: const Dashboard(), // Always start with Dashboard
     );
   }
 }
