@@ -53,6 +53,7 @@ class _WishlistPageState extends State<WishlistPage> {
     // Access the CartModel using Provider
     final cart = Provider.of<CartModel>(context);
     final wishlistItems = cart.wishlistItems; // Get the wishlist items
+    final cartItemsCount = cart.itemQuantitiesMap.length;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Wishlist')),
@@ -192,29 +193,56 @@ class _WishlistPageState extends State<WishlistPage> {
                 },
               ),
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
+        items: <BottomNavigationBarItem>[
+          const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home), // Home icon
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart), // Cart icon
+            icon: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                const Icon(Icons.shopping_cart),
+                if (cartItemsCount > 0)
+                  Positioned(
+                    right: -8,
+                    top: -8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFE5315D),
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 16,
+                        minHeight: 16,
+                      ),
+                      child: Text(
+                        cartItemsCount.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             label: 'Cart',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_border), // Wishlist icon
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.favorite_border),
             label: 'Wishlist',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline), // Profile/Account icon
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.person_outline),
             label: 'Account',
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: Color(0xFFE5315D), // Customize selected item color
-        unselectedItemColor: Colors.grey, // Customize unselected item color
+        selectedItemColor: const Color(0xFFE5315D),
+        unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
-        type: BottomNavigationBarType.fixed, // Ensure all items are visible
+        type: BottomNavigationBarType.fixed,
       ),
     );
   }

@@ -48,7 +48,7 @@ class Myapp extends StatelessWidget {
           }
 
           // User is not logged in
-          return const HomePage();
+          return const Dashboard();
         },
       ),
     );
